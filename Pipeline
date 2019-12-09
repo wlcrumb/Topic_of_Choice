@@ -1,0 +1,11 @@
+fastq-dump -I --split-files SRR5965270
+fastqc SRR5965270_1.fastq
+fastqc SRR5965270_2.fastq
+cutadapt -q 20,20 -a AGATCGGAAGAGCACACGTCTGAACTCCAGTCA -A AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT -o SRR5965270_1.cutadapt.fastq -p SRR5965270_2.cutadapt.fastq
+wget ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCA/000/768/395/GCA_000768395.1_Cpor_2.0/GCA_000768395.1_Cpor_2.0_genomic.fna.gz
+gunzip GCA_000768395.1_Cpor_2.0_genomic.fna.gz
+bowtie2-build GCA_000768395.1_Cpor_2.0_genomic.fna.gz C.porosus
+bowtie2 -x C.porosus -1 SRR5965270_1.cutadapt.fastq -2 SRR5965270_2.cutadapt.fastq -S C.porosus_SAM.sam
+samtools view -S -b C.porosus_SAM.sam > C.por.bam
+samtools fasta C.por.bam > C.por.fasta
+makeblastdb -in C.por.fasta -dbtype nucl -title Cporosus
